@@ -17,6 +17,7 @@ BEGIN {
     binmode $builder->failure_output, ":utf8";
     binmode $builder->todo_output,    ":utf8";
 
+#     use_ok 'AnyEvent::Impl::EV';
     use_ok 'AnyEvent';
     use_ok 'AnyEvent::AggressiveIdle';
 }
@@ -38,7 +39,7 @@ BEGIN {
 
     diag explain [ $aggressive_counter, $common_counter ]
         unless ok $aggressive_counter > $common_counter,
-            "aggressive_idle idle works fine";
+            "aggressive_idle works fine";
     diag explain [ $aggressive_counter, $common_counter ]
         unless ok $common_counter < 3, "aggressive_idle blocks AE::idle";
 }
@@ -48,11 +49,15 @@ BEGIN {
     my $counter2 = 0;
     my $idle;
     $idle = aggressive_idle { undef $idle if ++$counter >= 1000 };
-    aggressive_idle { ++$counter2 };
-    my $timer = AE::timer 0.5, 0 => sub { $cv->send };
+
+    my $t0 = AE::timer 0.5, 0 => sub {
+        aggressive_idle { ++$counter2 };
+        return;
+    };
+    my $timer = AE::timer 1, 0 => sub { $cv->send };
     $cv->recv;
 
     diag $counter unless ok $counter == 1000, "Breaking idle process";
     diag explain [ $counter2, $counter ]
-        unless ok $counter2 > $counter, "Breacknig inside idle process";
+        unless ok $counter2 > $counter, "Breaknig inside idle process";
 }

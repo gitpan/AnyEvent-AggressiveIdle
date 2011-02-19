@@ -4,3 +4,6 @@ Revision history for Perl extension AnyEvent::AggressiveIdle.
 	- original version; created by h2xs 1.23 with options
 		-X -n AnyEvent::AggressiveIdle
 
+0.02  Sat Feb 19 21:42:00 MSK 2011
+        - AnyEvent::Impl::EV works properly.
+        - Add AnyEvent in Depends

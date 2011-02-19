@@ -12,7 +12,7 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 
-our $VERSION    = '0.01';
+our $VERSION    = '0.02';
 
 our @EXPORT     = qw(aggressive_idle);
 our @EXPORT_OK  = qw(stop_aggressive_idle aggressive_idle);
@@ -25,8 +25,19 @@ sub stop_aggressive_idle($) {
 
     croak "Invalid idle identifier: $no"
         unless $no and !ref($no) and $IDLE{$no};
+
     delete $IDLE{$no};
-    undef $WATCHER unless %IDLE;
+
+    unless (%IDLE) {
+        # EV is buggy: if You remove or stop file watcher
+        # it won't be able to resume watching
+        # so if EV us used as a backend we won't remove watcher
+        return if 'EV::IO' eq ref $WATCHER;
+
+        # delete watcher
+        undef $WATCHER;
+    }
+    return;
 }
 
 sub aggressive_idle(&) {
@@ -34,8 +45,19 @@ sub aggressive_idle(&) {
     $WOBJ = tempfile('ae-aggressive-idle.XXXXX') unless defined $WOBJ;
     $NO = 0 unless defined $NO;
 
-    $WATCHER = AE::io $WOBJ, 1, sub { $IDLE{$_}->($_) for keys %IDLE }
-        unless %IDLE;
+    unless (%IDLE) {
+        unless (defined $WATCHER) {
+            $WATCHER = AE::io $WOBJ, 0, sub {
+                # localize keys (because idle processes can change
+                # watchers list)
+                my @pid = keys %IDLE;
+                for (@pid) {
+                    next unless exists $IDLE{$_};
+                    $IDLE{$_}->($_);
+                }
+            };
+        }
+    }
 
     my $no = ++$NO;
     $IDLE{$no} = $_[0];
