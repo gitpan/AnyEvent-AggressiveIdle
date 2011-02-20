@@ -3,7 +3,6 @@ package AnyEvent::AggressiveIdle;
 use Carp;
 use AnyEvent;
 use AnyEvent::Util;
-use File::Temp qw(tempfile);
 
 use 5.010001;
 use strict;
@@ -12,14 +11,14 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 
-our $VERSION    = '0.02';
+our $VERSION    = '0.03';
 
 our @EXPORT     = qw(aggressive_idle);
 our @EXPORT_OK  = qw(stop_aggressive_idle aggressive_idle);
-our %EXPORT_TAG = ( ':all' => [@EXPORT_OK] );
+our %EXPORT_TAG = ( all => [@EXPORT_OK] );
 
 sub stop_aggressive_idle($) {
-    our ($WOBJ, %IDLE, $WATCHER);
+    our (%IDLE, $WATCHER);
 
     my ($no) = @_;
 
@@ -27,37 +26,24 @@ sub stop_aggressive_idle($) {
         unless $no and !ref($no) and $IDLE{$no};
 
     delete $IDLE{$no};
-
-    unless (%IDLE) {
-        # EV is buggy: if You remove or stop file watcher
-        # it won't be able to resume watching
-        # so if EV us used as a backend we won't remove watcher
-        return if 'EV::IO' eq ref $WATCHER;
-
-        # delete watcher
-        undef $WATCHER;
-    }
+    undef $WATCHER unless %IDLE;
     return;
 }
 
 sub aggressive_idle(&) {
-    our ($WOBJ, %IDLE, $WATCHER, $NO);
-    $WOBJ = tempfile('ae-aggressive-idle.XXXXX') unless defined $WOBJ;
+    our ($WOBJ, $WOBJR, %IDLE, $WATCHER, $NO);
+    ($WOBJR, $WOBJ) = portable_pipe unless defined $WOBJ;
     $NO = 0 unless defined $NO;
 
-    unless (%IDLE) {
-        unless (defined $WATCHER) {
-            $WATCHER = AE::io $WOBJ, 0, sub {
-                # localize keys (because idle processes can change
-                # watchers list)
-                my @pid = keys %IDLE;
-                for (@pid) {
-                    next unless exists $IDLE{$_};
-                    $IDLE{$_}->($_);
-                }
-            };
+    $WATCHER = AE::io $WOBJ, 1, sub {
+        # localize keys (because idle processes can change
+        # watchers list)
+        my @pid = keys %IDLE;
+        for (@pid) {
+            next unless exists $IDLE{$_};
+            $IDLE{$_}->($_);
         }
-    }
+    } unless %IDLE;
 
     my $no = ++$NO;
     $IDLE{$no} = $_[0];

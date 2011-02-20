@@ -7,3 +7,6 @@ Revision history for Perl extension AnyEvent::AggressiveIdle.
 0.02  Sat Feb 19 21:42:00 MSK 2011
         - AnyEvent::Impl::EV works properly.
         - Add AnyEvent in Depends
+
+0.03  Sun Feb 20 12:09:52 MSK 2011
+        - use pipe instead file. Thanks for Marc Lehmann's review.
