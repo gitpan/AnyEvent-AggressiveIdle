@@ -1,12 +1,13 @@
-README
-Makefile.PL
-t/AnyEvent-AggressiveIdle.t
+Changes
 debian/changelog
 debian/compat
+debian/control
 debian/copyright
 debian/rules
-debian/control
-MANIFEST
-Changes
 lib/AnyEvent/AggressiveIdle.pm
+Makefile.PL
+MANIFEST
+README
+t/01_base.t
+t/02_guards.t
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,9 +1,10 @@
-libanyevent-aggressiveidle-perl (0.03-1) unstable; urgency=low
+libanyevent-aggressiveidle-perl (0.04-1) unstable; urgency=low
 
   * New upstream version.
   * Use pipe instead tempfile.
+  * Add guards into idle callback.
 
- -- Dmitry E. Oboukhov <unera@debian.org>  Sun, 20 Feb 2011 12:17:20 +0300
+ -- Dmitry E. Oboukhov <unera@debian.org>  Tue, 01 Mar 2011 12:40:10 +0300
 
 libanyevent-aggressiveidle-perl (0.02-1) unstable; urgency=low
 

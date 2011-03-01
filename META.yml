@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               AnyEvent-AggressiveIdle
-version:            0.03
+version:            0.04
 abstract:           Aggressive idle processes for AnyEvent.
 author:
     - Dmitry E. Oboukhov <dimka@>

@@ -10,3 +10,7 @@ Revision history for Perl extension AnyEvent::AggressiveIdle.
 
 0.03  Sun Feb 20 12:09:52 MSK 2011
         - use pipe instead file. Thanks for Marc Lehmann's review.
+
+0.04  Tue Mar  1 12:26:24 MSK 2011
+        - Add a guard into idle callback: You can do something continuous
+          inside the callback.

@@ -17,4 +17,6 @@ install/libanyevent-aggressiveidle-perl::
 			"but module has $(PERVERSION)"; \
 		false; \
 	fi
-	
+
+clean::
+	rm -f Makefile.old
